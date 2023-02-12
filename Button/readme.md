@@ -19,6 +19,7 @@
 * config.json
   * Slack app token
   * Slack member_id
+  * Slack channel id
 
 ## PINOUT
 ```shell
