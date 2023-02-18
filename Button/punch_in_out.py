@@ -128,7 +128,8 @@ while True:
     lap_time = released_time - pressed_time
 
     # Press type
-    if timedelta(seconds=HOLD_TIME) <= lap_time <= timedelta(seconds=HOLD_WAIT):
+    if (timedelta(seconds=HOLD_TIME) <= lap_time and
+            lap_time <= timedelta(seconds=HOLD_WAIT)):
         # Looooong press
         now = datetime.now()
         msg = random.choice(punchOutScripts)

@@ -104,11 +104,11 @@ x = 0
 # same directory as the python script!
 # Some other nice fonts to try: http://www.dafont.com/bitmap.php
 defaultFont = ImageFont.truetype(os.path.dirname(
-    __file__) + "/materials/GenShinGothic-Normal.ttf", 12)
+    __file__) + "/materials/NotoSansJP-Regular.otf", 12)
 smallFont = ImageFont.truetype(os.path.dirname(
-    __file__) + "/materials/GenShinGothic-Normal.ttf", 10)
+    __file__) + "/materials/NotoSansJP-Regular.otf", 10)
 largeFont = ImageFont.truetype(os.path.dirname(
-    __file__) + "/materials/GenShinGothic-Normal.ttf", 28)
+    __file__) + "/materials/NotoSansJP-Regular.otf", 28)
 
 
 class SlackCtrl:
@@ -150,7 +150,10 @@ class SlackCtrl:
                 break
 
         # with urllib.request.urlopen(req) as res:
-        #     print(json.dumps(json.loads(res.read().decode('utf-8')), indent=2))
+        #     print(json.dumps(json.loads(
+        #         res.read().decode('utf-8')),
+        #         indent=2)
+        #     )
 
 
 class RaspiCtrl:
@@ -219,13 +222,18 @@ while True:
         if at_counter > COUNTER_THRESHOLD and status == 0:
             status = 1
             slack.change_status(
-                "I am at the desk:raspberrypi:" + distanceSlack + "cm", ":hot-desking:")
+                "I am at the desk:raspberrypi:" + distanceSlack + "cm",
+                ":hot-desking:"
+            )
             at_counter = 0
             no_counter = 0
 
         if no_counter > COUNTER_THRESHOLD and status == 1:
             status = 0
-            slack.change_status("Away from the desk:raspberrypi:", ":away:")
+            slack.change_status(
+                "Away from the desk:raspberrypi:",
+                ":away:"
+            )
             at_counter = 0
             no_counter = 0
 
@@ -244,11 +252,11 @@ while True:
         dateToday = subprocess.check_output(cmd, shell=True).decode("utf-8")
 
         # Get a Pi model data.
-        cmd = "grep </proc/cpuinfo '^Model' | cut -d':' -f2 | cut -d' ' -f2-"
+        cmd = "grep </proc/cpuinfo '^Model'|cut -d':' -f2|cut -d' ' -f2-"
         raspiModel = subprocess.check_output(cmd, shell=True).decode("utf-8")
 
         # Get a CPU load data.
-        cmd = "top -bn1 | grep load | awk '{printf \"CPU Load: %.2f\", $(NF-2)}'"
+        cmd = "top -bn1|grep load|awk '{printf \"Load: %.2f\", $(NF-2)}'"
         cpuLoad = subprocess.check_output(cmd, shell=True).decode("utf-8")
 
         # Get a CPU freq.
@@ -257,15 +265,18 @@ while True:
         #     subprocess.check_output(cmd, shell=True).decode("utf-8")
 
         # Get a memory usage.
-        # cmd = "free -m | awk 'NR==2{printf \"Mem: %s/%s MB  %.2f%%\", $3,$2,$3*100/$2}'"
+        # cmd = "free -m"
+        # + "|awk 'NR==2{printf \"Mem: %s/%s MB %.2f%%\",$3,$2,$3*100/$2}'"
         # memUsage = subprocess.check_output(cmd, shell=True).decode("utf-8")
 
         # Get a disk usage.
-        # cmd = 'df -h | awk \'$NF=="/"{printf "Disk: %d/%d GB  %s", $3,$2,$5}\''
+        # cmd = "df -h"
+        # + "|awk '$NF==\"/\"{printf \"Disk: %d/%d GB %s\",$3,$2,$5}'"
         # diskUsage = subprocess.check_output(cmd, shell=True).decode("utf-8")
 
         # Get a CPU temparature.
-        cmd = "cat /sys/class/thermal/thermal_zone0/temp | awk '{printf \"CPU温度: %.1f C\", $(NF-0) / 1000}'"  # pylint: disable=line-too-long
+        cmd = "cat /sys/class/thermal/thermal_zone0/temp"
+        + "|awk '{printf \"Temp: %.1f C\", $(NF-0) / 1000}'"
         cpuTemp = subprocess.check_output(cmd, shell=True).decode("utf-8")
 
         # Set a y-scale padding.
