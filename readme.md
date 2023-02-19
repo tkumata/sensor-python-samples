@@ -30,7 +30,7 @@ sudo chmod +x /etc/update-motd.d/90-neofetch
 90-neofetch
 ```
 #!/bin/sh
-neofetch
+/usr/bin/neofetch
 ```
 Result
 ```

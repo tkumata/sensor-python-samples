@@ -103,12 +103,21 @@ x = 0
 # Load a TTF font.  Make sure the .ttf font file is in the
 # same directory as the python script!
 # Some other nice fonts to try: http://www.dafont.com/bitmap.php
-defaultFont = ImageFont.truetype(os.path.dirname(
-    __file__) + "/materials/NotoSansJP-Regular.otf", 12)
-smallFont = ImageFont.truetype(os.path.dirname(
-    __file__) + "/materials/NotoSansJP-Regular.otf", 10)
-largeFont = ImageFont.truetype(os.path.dirname(
-    __file__) + "/materials/NotoSansJP-Regular.otf", 28)
+defaultFont = ImageFont.truetype(
+    os.path.dirname(__file__) +
+    "/materials/Hack-Regular-Nerd-Font-Complete.ttf",
+    14
+)
+smallFont = ImageFont.truetype(
+    os.path.dirname(__file__) +
+    "/materials/Hack-Regular-Nerd-Font-Complete.ttf",
+    12
+)
+largeFont = ImageFont.truetype(
+    os.path.dirname(__file__) +
+    "/materials/Hack-Regular-Nerd-Font-Complete.ttf",
+    26
+)
 
 
 class SlackCtrl:
@@ -134,6 +143,11 @@ class SlackCtrl:
             data=json.dumps(params).encode('utf-8'),
             headers=headers
         )
+        # with urllib.request.urlopen(req) as res:
+        #     print(json.dumps(json.loads(
+        #         res.read().decode('utf-8')),
+        #         indent=2)
+        #     )
 
         i = 0
         while True:
@@ -148,12 +162,6 @@ class SlackCtrl:
                 print('Reason: ', e.reason)
             else:
                 break
-
-        # with urllib.request.urlopen(req) as res:
-        #     print(json.dumps(json.loads(
-        #         res.read().decode('utf-8')),
-        #         indent=2)
-        #     )
 
 
 class RaspiCtrl:
@@ -206,12 +214,25 @@ status = 0
 COUNTER_THRESHOLD = 3
 DISTANCE_THRESHOLD = 55
 
+DIST_ICON = u'\udb85\udd79 '.encode('raw_unicode_escape').decode(
+    'unicode_escape').encode('utf-16', 'surrogatepass').decode('utf-16')
+DESK_ICON = u'\udb84\ude39 '.encode('raw_unicode_escape').decode(
+    'unicode_escape').encode('utf-16', 'surrogatepass').decode('utf-16')
+CLOCK_ICON = u'\udb85\udc45 '.encode('raw_unicode_escape').decode(
+    'unicode_escape').encode('utf-16', 'surrogatepass').decode('utf-16')
+TEMP_ICON = u'\udb81\udd04 '.encode('raw_unicode_escape').decode(
+    'unicode_escape').encode('utf-16', 'surrogatepass').decode('utf-16')
+CPU32_ICON = u'\udb83\udedf '.encode('raw_unicode_escape').decode(
+    'unicode_escape').encode('utf-16', 'surrogatepass').decode('utf-16')
+RASPI_ICON = u'\uf315 '
+CALENDER_ICON = u'\uf073 '
+
 while True:
     try:
         # Get a measurement distance.
         distance = raspi.measurementInCM()
         distanceSlack = "%.1f" % distance
-        distanceLabel = "距離: %.1f cm" % distance
+        distanceLabel = DIST_ICON + "%.1f cm" % distance
 
         if distance < DISTANCE_THRESHOLD:
             at_counter = at_counter + 1
@@ -246,18 +267,22 @@ while True:
         # Get time
         cmd = "date '+%H:%M'"
         timePresent = subprocess.check_output(cmd, shell=True).decode("utf-8")
+        timePresent = CLOCK_ICON + timePresent
 
         # Get date.
         cmd = "date '+%Y/%m/%d'"
         dateToday = subprocess.check_output(cmd, shell=True).decode("utf-8")
+        dateToday = CALENDER_ICON + dateToday
 
         # Get a Pi model data.
         cmd = "grep </proc/cpuinfo '^Model'|cut -d':' -f2|cut -d' ' -f2-"
         raspiModel = subprocess.check_output(cmd, shell=True).decode("utf-8")
+        raspiModel = RASPI_ICON + raspiModel
 
         # Get a CPU load data.
-        cmd = "top -bn1|grep load|awk '{printf \"Load: %.2f\", $(NF-2)}'"
+        cmd = "top -bn1|grep load|awk '{printf \"%.2f\", $(NF-2)}'"
         cpuLoad = subprocess.check_output(cmd, shell=True).decode("utf-8")
+        cpuLoad = CPU32_ICON + cpuLoad
 
         # Get a CPU freq.
         # cmd = "cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
@@ -275,16 +300,16 @@ while True:
         # diskUsage = subprocess.check_output(cmd, shell=True).decode("utf-8")
 
         # Get a CPU temparature.
-        cmd = "cat /sys/class/thermal/thermal_zone0/temp"
-        + "|awk '{printf \"Temp: %.1f C\", $(NF-0) / 1000}'"
+        cmd = "cat /sys/class/thermal/thermal_zone0/temp | awk '{printf \"%.1f C\", $(NF-0) / 1000}'"
         cpuTemp = subprocess.check_output(cmd, shell=True).decode("utf-8")
+        cpuTemp = TEMP_ICON + cpuTemp
 
         # Set a y-scale padding.
         y = padding
 
         # Draw Raspi model.
-        draw.text((x, y), raspiModel, font=smallFont, fill="#bc1142")
-        y += smallFont.getsize(raspiModel)[1]
+        draw.text((x, y), raspiModel, font=defaultFont, fill="#bc1142")
+        y += defaultFont.getsize(raspiModel)[1]
 
         # Draw time.
         x = (width / 2) - (largeFont.getsize(timePresent)[0] / 2)
@@ -293,7 +318,7 @@ while True:
 
         # Draw date.
         x = (width / 2) - (defaultFont.getsize(dateToday)[0] / 2)
-        draw.text((x, y), dateToday, font=defaultFont, fill="#00ffff")
+        draw.text((x, y), dateToday, font=defaultFont, fill="#ffffff")
         y += defaultFont.getsize(dateToday)[1]
 
         x = 0
@@ -312,10 +337,19 @@ while True:
 
         # Draw my status.
         if status == 1:
-            draw.text((x, y), "I am at the desk.",
-                      font=defaultFont, fill="#ffffff")
+            draw.text(
+                (x, y),
+                DESK_ICON + "At the desk.",
+                font=defaultFont,
+                fill="#ffffff"
+            )
         else:
-            draw.text((x, y), "AFK", font=defaultFont, fill="#ffffff")
+            draw.text(
+                (x, y),
+                DESK_ICON + "AFK",
+                font=defaultFont,
+                fill="#ffffff"
+            )
 
         # Draw memory usage.
         # draw.text((x, y), memUsage, font=smallFont, fill="#ffffff")
