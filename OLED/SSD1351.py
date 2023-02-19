@@ -290,7 +290,7 @@ while True:
 
         # Get a memory usage.
         # cmd = "free -m"\
-        # + "| awk 'NR==2{printf \"Mem: %s/%s MB %.2f%%\",$3,$2,$3*100/$2}'"
+        # + "| awk 'NR==2{printf \"%s/%s MB %.2f %%\", $3, $2, $3*100/$2}'"
         # memUsage = subprocess.check_output(cmd, shell=True).decode("utf-8")
 
         # Get a disk usage.
@@ -341,14 +341,14 @@ while True:
                 (x, y),
                 DESK_ICON + "At the desk.",
                 font=defaultFont,
-                fill="#ffffff"
+                fill="white"
             )
         else:
             draw.text(
                 (x, y),
                 DESK_ICON + "AFK",
                 font=defaultFont,
-                fill="#ffffff"
+                fill="white"
             )
 
         # Draw memory usage.
