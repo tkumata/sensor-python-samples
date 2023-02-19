@@ -5,6 +5,7 @@ import time
 import urllib.parse
 import urllib.request
 from urllib.error import HTTPError, URLError
+from datetime import datetime
 
 import board
 import digitalio
@@ -241,22 +242,26 @@ while True:
             no_counter = no_counter + 1
 
         if at_counter > COUNTER_THRESHOLD and status == 0:
+            now = datetime.now()
             status = 1
             slack.change_status(
-                "I am at the desk:raspberrypi:" + distanceSlack + "cm",
-                ":hot-desking:"
+                "At the desk:raspberrypi:" + distanceSlack + "cm",
+                ":house:"
             )
             at_counter = 0
             no_counter = 0
+            print(now.strftime('%Y-%m-%d %H:%M:%S') + ' at the desk.')
 
         if no_counter > COUNTER_THRESHOLD and status == 1:
+            now = datetime.now()
             status = 0
             slack.change_status(
-                "Away from the desk:raspberrypi:",
+                "AFK:raspberrypi:" + distanceSlack + "cm",
                 ":away:"
             )
             at_counter = 0
             no_counter = 0
+            print(now.strftime('%Y-%m-%d %H:%M:%S') + ' at the desk.')
 
         # Copy new background
         copyBaseImage = imageBlended.copy()
