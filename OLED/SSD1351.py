@@ -250,7 +250,7 @@ while True:
             )
             at_counter = 0
             no_counter = 0
-            print(now.strftime('%Y-%m-%d %H:%M:%S') + ' at the desk.')
+            print(now.strftime('%Y-%m-%d %H:%M:%S') + ' at the desk')
 
         if no_counter > COUNTER_THRESHOLD and status == 1:
             now = datetime.now()
@@ -261,7 +261,7 @@ while True:
             )
             at_counter = 0
             no_counter = 0
-            print(now.strftime('%Y-%m-%d %H:%M:%S') + ' at the desk.')
+            print(now.strftime('%Y-%m-%d %H:%M:%S') + ' AFK')
 
         # Copy new background
         copyBaseImage = imageBlended.copy()
