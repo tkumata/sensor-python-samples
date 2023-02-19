@@ -275,32 +275,32 @@ while True:
         dateToday = CALENDER_ICON + dateToday
 
         # Get a Pi model data.
-        cmd = "grep </proc/cpuinfo '^Model'|cut -d':' -f2|cut -d' ' -f2-"
+        cmd = "grep </proc/cpuinfo '^Model' | cut -d':' -f2 | cut -d' ' -f2-"
         raspiModel = subprocess.check_output(cmd, shell=True).decode("utf-8")
         raspiModel = RASPI_ICON + raspiModel
 
         # Get a CPU load data.
-        cmd = "top -bn1|grep load|awk '{printf \"%.2f\", $(NF-2)}'"
+        cmd = "top -bn1 | grep load | awk '{printf \"%.2f\", $(NF-2)}'"
         cpuLoad = subprocess.check_output(cmd, shell=True).decode("utf-8")
         cpuLoad = CPU32_ICON + cpuLoad
 
         # Get a CPU freq.
         # cmd = "cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
-        # cpuFreq = "CPU周波数: " + \
-        #     subprocess.check_output(cmd, shell=True).decode("utf-8")
+        # cpuFreq = subprocess.check_output(cmd, shell=True).decode("utf-8")
 
         # Get a memory usage.
-        # cmd = "free -m"
-        # + "|awk 'NR==2{printf \"Mem: %s/%s MB %.2f%%\",$3,$2,$3*100/$2}'"
+        # cmd = "free -m"\
+        # + "| awk 'NR==2{printf \"Mem: %s/%s MB %.2f%%\",$3,$2,$3*100/$2}'"
         # memUsage = subprocess.check_output(cmd, shell=True).decode("utf-8")
 
         # Get a disk usage.
-        # cmd = "df -h"
-        # + "|awk '$NF==\"/\"{printf \"Disk: %d/%d GB %s\",$3,$2,$5}'"
+        # cmd = "df -h"\
+        # + "| awk '$NF==\"/\"{printf \"Disk: %d/%d GB %s\", $3, $2, $5}'"
         # diskUsage = subprocess.check_output(cmd, shell=True).decode("utf-8")
 
         # Get a CPU temparature.
-        cmd = "cat /sys/class/thermal/thermal_zone0/temp | awk '{printf \"%.1f C\", $(NF-0) / 1000}'"
+        cmd = "cat /sys/class/thermal/thermal_zone0/temp"\
+            + " | awk '{printf \"%.1f C\", $(NF-0) / 1000}'"
         cpuTemp = subprocess.check_output(cmd, shell=True).decode("utf-8")
         cpuTemp = TEMP_ICON + cpuTemp
 
@@ -313,26 +313,26 @@ while True:
 
         # Draw time.
         x = (width / 2) - (largeFont.getsize(timePresent)[0] / 2)
-        draw.text((x, y), timePresent, font=largeFont, fill="#ffffff")
+        draw.text((x, y), timePresent, font=largeFont, fill="white")
         y += largeFont.getsize(timePresent)[1]
 
         # Draw date.
         x = (width / 2) - (defaultFont.getsize(dateToday)[0] / 2)
-        draw.text((x, y), dateToday, font=defaultFont, fill="#ffffff")
+        draw.text((x, y), dateToday, font=defaultFont, fill="white")
         y += defaultFont.getsize(dateToday)[1]
 
         x = 0
 
         # Draw CPU info.
-        draw.text((x, y), cpuLoad, font=defaultFont, fill="#ffffff")
+        draw.text((x, y), cpuLoad, font=defaultFont, fill="white")
         y += defaultFont.getsize(cpuLoad)[1]
-        # draw.text((x, y), cpuFreq, font=defaultFont, fill="#ffffff")
+        # draw.text((x, y), cpuFreq, font=defaultFont, fill="white")
         # y += defaultFont.getsize(cpuFreq)[1]
-        draw.text((x, y), cpuTemp, font=defaultFont, fill="#ffffff")
+        draw.text((x, y), cpuTemp, font=defaultFont, fill="white")
         y += defaultFont.getsize(cpuTemp)[1]
 
         # Draw measurement distance as string.
-        draw.text((x, y), distanceLabel, font=defaultFont, fill="#ffffff")
+        draw.text((x, y), distanceLabel, font=defaultFont, fill="white")
         y += defaultFont.getsize(distanceLabel)[1]
 
         # Draw my status.
