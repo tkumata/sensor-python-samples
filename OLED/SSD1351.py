@@ -322,9 +322,9 @@ while True:
         y += largeFont.getsize(timePresent)[1]
 
         # Draw date.
-        x = (width / 2) - (defaultFont.getsize(dateToday)[0] / 2)
-        draw.text((x, y), dateToday, font=defaultFont, fill="white")
-        y += defaultFont.getsize(dateToday)[1]
+        x = (width / 2) - (smallFont.getsize(dateToday)[0] / 2)
+        draw.text((x, y), dateToday, font=smallFont, fill="white")
+        y += smallFont.getsize(dateToday)[1]
 
         x = 0
 
@@ -345,14 +345,14 @@ while True:
             draw.text(
                 (x, y),
                 DESK_ICON + "At the desk.",
-                font=defaultFont,
+                font=smallFont,
                 fill="white"
             )
         else:
             draw.text(
                 (x, y),
                 DESK_ICON + "AFK",
-                font=defaultFont,
+                font=smallFont,
                 fill="white"
             )
 
