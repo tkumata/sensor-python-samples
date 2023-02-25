@@ -76,17 +76,17 @@ x = 0
 # Load a TTF font.
 defaultFont = ImageFont.truetype(
     os.path.dirname(__file__) +
-    "/materials/Hack-Regular-Nerd-Font-Complete.ttf",
+    "/materials/SFMono-Regular-Nerd-Font-Complete.otf",
     14
 )
 smallFont = ImageFont.truetype(
     os.path.dirname(__file__) +
-    "/materials/Hack-Regular-Nerd-Font-Complete.ttf",
+    "/materials/SFMono-Regular-Nerd-Font-Complete.otf",
     12
 )
 largeFont = ImageFont.truetype(
     os.path.dirname(__file__) +
-    "/materials/Hack-Regular-Nerd-Font-Complete.ttf",
+    "/materials/SFMono-Regular-Nerd-Font-Complete.otf",
     26
 )
 
@@ -185,18 +185,13 @@ status = 0
 COUNTER_THRESHOLD = 3
 DISTANCE_THRESHOLD = 55
 
-DIST_ICON = u'\udb85\udd79 '.encode('raw_unicode_escape').decode(
-    'unicode_escape').encode('utf-16', 'surrogatepass').decode('utf-16')
-DESK_ICON = u'\udb84\ude39 '.encode('raw_unicode_escape').decode(
-    'unicode_escape').encode('utf-16', 'surrogatepass').decode('utf-16')
-CLOCK_ICON = u'\udb85\udc45 '.encode('raw_unicode_escape').decode(
-    'unicode_escape').encode('utf-16', 'surrogatepass').decode('utf-16')
-TEMP_ICON = u'\udb81\udd04 '.encode('raw_unicode_escape').decode(
-    'unicode_escape').encode('utf-16', 'surrogatepass').decode('utf-16')
-CPU32_ICON = u'\udb83\udedf '.encode('raw_unicode_escape').decode(
-    'unicode_escape').encode('utf-16', 'surrogatepass').decode('utf-16')
-RASPI_ICON = u'\uf315 '
-CALENDER_ICON = u'\uf073 '
+DIST_ICON = u'\ufaca'
+DESK_ICON = u'\ufb5a'
+CLOCK_ICON = u'\ue38b'
+TEMP_ICON = u'\uf2c9'
+CPU_ICON = u'\ue266'
+RASPI_ICON = u'\ue722'
+CALENDER_ICON = u'\uf073'
 
 while True:
     try:
@@ -257,7 +252,7 @@ while True:
         # Get a CPU load data.
         cmd = "top -bn1 | grep load | awk '{printf \"%.2f\", $(NF-2)}'"
         cpuLoad = subprocess.check_output(cmd, shell=True).decode("utf-8")
-        cpuLoad = CPU32_ICON + cpuLoad
+        cpuLoad = CPU_ICON + cpuLoad
 
         # Get a CPU temparature.
         cmd = "cat /sys/class/thermal/thermal_zone0/temp"\
