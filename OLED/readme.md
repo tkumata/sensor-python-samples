@@ -1,6 +1,6 @@
 # Raspberry Pi Zero WH and HC-SR04 and SSD 1351
-## これは何？
-### SSD1351.py
+
+## change_slack_status.py
 自分と HC-SR04 との距離を測り特定距離なら自分が存在するとみなして Slack のステータスを変化させる python スクリプト。ついでに OLED に日付やラズパイの CPU 温度やセンサ距離などを表示させる。
 
 ## 必要なもの
@@ -14,6 +14,8 @@
   * Slack app token
   * Slack member_id
 
+## SSD1351.py
+OLED と HCSR04 の試作 python スクリプト。
 
 ## PINOUT
 ```shell
@@ -82,12 +84,6 @@ Chipset: SSD 1351
 
 ![画像](https://www.welectron.com/media/image/product/11237/md/waveshare-14747-15inch-rgb-oled-module_1.jpg)
 
-### Waveshare samples
-https://www.welectron.com/Waveshare-14747-15inch-RGB-OLED-Module_1
-
-### Adafruit SSD 1351 Samples
-https://learn.adafruit.com/adafruit-1-5-color-oled-breakout-board/python-usage
-
 ### GPIO
 * 3V3<br>
 * GND<br>
@@ -96,3 +92,9 @@ https://learn.adafruit.com/adafruit-1-5-color-oled-breakout-board/python-usage
 * GPIO11 as SCLK<br>
 * GPIO24 as Reset<br>
 * GPIO25 as DC<br>
+
+### Waveshare samples
+https://www.welectron.com/Waveshare-14747-15inch-RGB-OLED-Module_1
+
+### Adafruit SSD 1351 Samples
+https://learn.adafruit.com/adafruit-1-5-color-oled-breakout-board/python-usage

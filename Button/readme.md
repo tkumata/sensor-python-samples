@@ -1,15 +1,14 @@
 # Raspberry Pi 3B and Grove Button
 3B+ じゃなくて 3B
 
-## これは何？
-### punch_in_out.py
+## punch_in_out.py
 ボタンを押したら Slack の特定チャンネルに投稿する python スクリプト。
 
 - 一回押下で仕事始めるメッセージを投稿
 - 二回素早く押下(ダブルクリック的な押下)で離席を表すメッセージを投稿
 - 長押しで業務終了を表すメッセージを投稿
 
-### Button.py
+## Button.py
 上記の試作。
 
 ## 必要なもの
