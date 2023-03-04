@@ -99,8 +99,27 @@ class SlackCtrl:
     def postAway(self, msg):
         self.postToChannel('試:raspberrypi: ' + msg)
 
+    def change_status(self, status_text, status_emoji):
+        headers = {
+            'Authorization': 'Bearer %s' % self.TOKEN,
+            'X-Slack-User': self.MEMBER_ID,
+            'Content-Type': 'application/json; charset=utf-8'
+        }
+        params = {
+            'profile': {
+                'status_text': status_text,
+                'status_emoji': status_emoji
+            }
+        }
+        req = urllib.request.Request(
+            "https://slack.com/api/users.profile.set",
+            method='POST',
+            data=json.dumps(params).encode('utf-8'),
+            headers=headers
+        )
+        urllib.request.urlopen(req)
 
-# Function which makes string left alignment.
+
 def ljust(string, length):
     count_length = 0
     for char in string.encode().decode('utf8'):
@@ -134,6 +153,7 @@ while True:
         now = datetime.now()
         msg = random.choice(punchOutScripts)
         slack.postPunchOut(msg)
+        slack.change_status('Working//業務中', ':working-from-home:')
         print(now.strftime('%Y-%m-%d %H:%M:%S') + ' [held] ' + msg)
         PRESSED = 0
     if btn.wait_for_press(timeout=TIME_OUT):
@@ -141,6 +161,7 @@ while True:
         now = datetime.now()
         msg = random.choice(awayScripts)
         slack.postAway(msg)
+        slack.change_status('AFK//離席中', ':away:')
         print(now.strftime('%Y-%m-%d %H:%M:%S') + ' [double] ' + msg)
         time.sleep(TIME_OUT)
     else:
@@ -149,4 +170,5 @@ while True:
             now = datetime.now()
             msg = random.choice(punchInScripts)
             slack.postPunchIn(msg)
+            slack.change_status('Zzz...//終業', ':house:')
             print(now.strftime('%Y-%m-%d %H:%M:%S') + ' [single] ' + msg)
