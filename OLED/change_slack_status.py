@@ -52,7 +52,6 @@ disp = ssd1351.SSD1351(
     rst=reset_pin,
     baudrate=BAUDRATE,
 )
-# pylint: enable=line-too-long
 
 # Create image for drawing.
 # Make sure to create imageBase with mode 'RGB' for full color.
@@ -70,53 +69,24 @@ drawBalck = ImageDraw.Draw(imageBlack)
 drawBalck.rectangle((0, 0, width, height), outline=0, fill=0)
 imageBlended = imageBlack.copy()
 
-# Create a base image.
-# print('Creating a base image...')
-# imageBase = Image.open(os.path.dirname(__file__) + "/materials/picture1.jpg")
-
-# # Scale the imageBase to the smaller screen dimension
-# print('Calcurating base image raito...')
-# image_ratio = imageBase.width / imageBase.height
-# screen_ratio = width / height
-# if screen_ratio < image_ratio:
-#     scaled_width = imageBase.width * height // imageBase.height
-#     scaled_height = height
-# else:
-#     scaled_width = width
-#     scaled_height = imageBase.height * width // imageBase.width
-# print('Resizing a base image...')
-# imageBase = imageBase.resize((scaled_width, scaled_height), Image.BICUBIC)
-
-# # Crop and center the imageBase
-# print('Croping and centering a base image...')
-# x = scaled_width // 2 - width // 2
-# y = scaled_height // 2 - height // 2
-# imageBase = imageBase.crop((x, y, x + width, y + height))
-
-# # Blend imageBase and imageBlack
-# print('Blending a two images...')
-# imageBlended = Image.blend(imageBase, imageBlack, 0.6)
-
 # First define some constants to allow easy positioning of text.
 padding = -2
 x = 0
 
-# Load a TTF font.  Make sure the .ttf font file is in the
-# same directory as the python script!
-# Some other nice fonts to try: http://www.dafont.com/bitmap.php
+# Load a TTF font.
 defaultFont = ImageFont.truetype(
     os.path.dirname(__file__) +
-    "/materials/Hack-Regular-Nerd-Font-Complete.ttf",
+    "/materials/SFMono-Regular-Nerd-Font-Complete.otf",
     14
 )
 smallFont = ImageFont.truetype(
     os.path.dirname(__file__) +
-    "/materials/Hack-Regular-Nerd-Font-Complete.ttf",
+    "/materials/SFMono-Regular-Nerd-Font-Complete.otf",
     12
 )
 largeFont = ImageFont.truetype(
     os.path.dirname(__file__) +
-    "/materials/Hack-Regular-Nerd-Font-Complete.ttf",
+    "/materials/SFMono-Regular-Nerd-Font-Complete.otf",
     26
 )
 
@@ -215,18 +185,13 @@ status = 0
 COUNTER_THRESHOLD = 3
 DISTANCE_THRESHOLD = 55
 
-DIST_ICON = u'\udb85\udd79 '.encode('raw_unicode_escape').decode(
-    'unicode_escape').encode('utf-16', 'surrogatepass').decode('utf-16')
-DESK_ICON = u'\udb84\ude39 '.encode('raw_unicode_escape').decode(
-    'unicode_escape').encode('utf-16', 'surrogatepass').decode('utf-16')
-CLOCK_ICON = u'\udb85\udc45 '.encode('raw_unicode_escape').decode(
-    'unicode_escape').encode('utf-16', 'surrogatepass').decode('utf-16')
-TEMP_ICON = u'\udb81\udd04 '.encode('raw_unicode_escape').decode(
-    'unicode_escape').encode('utf-16', 'surrogatepass').decode('utf-16')
-CPU32_ICON = u'\udb83\udedf '.encode('raw_unicode_escape').decode(
-    'unicode_escape').encode('utf-16', 'surrogatepass').decode('utf-16')
-RASPI_ICON = u'\uf315 '
-CALENDER_ICON = u'\uf073 '
+DIST_ICON = u'\ufaca'
+DESK_ICON = u'\ufb5a'
+CLOCK_ICON = u'\ue38b'
+TEMP_ICON = u'\uf2c9'
+CPU_ICON = u'\ue266'
+RASPI_ICON = u'\ue722'
+CALENDER_ICON = u'\uf073'
 
 while True:
     try:
@@ -287,21 +252,7 @@ while True:
         # Get a CPU load data.
         cmd = "top -bn1 | grep load | awk '{printf \"%.2f\", $(NF-2)}'"
         cpuLoad = subprocess.check_output(cmd, shell=True).decode("utf-8")
-        cpuLoad = CPU32_ICON + cpuLoad
-
-        # Get a CPU freq.
-        # cmd = "cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq"
-        # cpuFreq = subprocess.check_output(cmd, shell=True).decode("utf-8")
-
-        # Get a memory usage.
-        # cmd = "free -m"\
-        # + "| awk 'NR==2{printf \"%s/%s MB %.2f %%\", $3, $2, $3*100/$2}'"
-        # memUsage = subprocess.check_output(cmd, shell=True).decode("utf-8")
-
-        # Get a disk usage.
-        # cmd = "df -h"\
-        # + "| awk '$NF==\"/\"{printf \"Disk: %d/%d GB %s\", $3, $2, $5}'"
-        # diskUsage = subprocess.check_output(cmd, shell=True).decode("utf-8")
+        cpuLoad = CPU_ICON + cpuLoad
 
         # Get a CPU temparature.
         cmd = "cat /sys/class/thermal/thermal_zone0/temp"\
@@ -331,8 +282,6 @@ while True:
         # Draw CPU info.
         draw.text((x, y), cpuLoad, font=defaultFont, fill="white")
         y += defaultFont.getsize(cpuLoad)[1]
-        # draw.text((x, y), cpuFreq, font=defaultFont, fill="white")
-        # y += defaultFont.getsize(cpuFreq)[1]
         draw.text((x, y), cpuTemp, font=defaultFont, fill="white")
         y += defaultFont.getsize(cpuTemp)[1]
 
@@ -355,13 +304,6 @@ while True:
                 font=smallFont,
                 fill="white"
             )
-
-        # Draw memory usage.
-        # draw.text((x, y), memUsage, font=smallFont, fill="#ffffff")
-        # y += smallFont.getsize(memUsage)[1]
-
-        # Draw disk usage.
-        # draw.text((x, y), diskUsage, font=smallFont, fill="#ffffff")
 
         # Display imageBase.
         disp.image(copyBaseImage)
