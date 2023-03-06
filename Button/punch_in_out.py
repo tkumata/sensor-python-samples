@@ -153,7 +153,7 @@ while True:
         now = datetime.now()
         msg = random.choice(punchOutScripts)
         slack.postPunchOut(msg)
-        slack.change_status('Working//業務中', ':working-from-home:')
+        slack.change_status('Zzz...//終業', ':working-from-home:')
         print(now.strftime('%Y-%m-%d %H:%M:%S') + ' [held] ' + msg)
         PRESSED = 0
     if btn.wait_for_press(timeout=TIME_OUT):
@@ -170,5 +170,5 @@ while True:
             now = datetime.now()
             msg = random.choice(punchInScripts)
             slack.postPunchIn(msg)
-            slack.change_status('Zzz...//終業', ':house:')
+            slack.change_status('Working...//業務中', ':house:')
             print(now.strftime('%Y-%m-%d %H:%M:%S') + ' [single] ' + msg)
