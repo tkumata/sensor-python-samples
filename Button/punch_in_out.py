@@ -90,7 +90,7 @@ class SlackCtrl:
         )
         urllib.request.urlopen(req)
 
-    def change_status(self, status_text, status_emoji):
+    def changeStatus(self, status_text, status_emoji):
         headers = {
             'Authorization': 'Bearer %s' % self.TOKEN,
             'X-Slack-User': self.MEMBER_ID,
@@ -112,15 +112,15 @@ class SlackCtrl:
 
     def postPunchIn(self, msg):
         self.postToChannel(':raspberrypi:' + msg + ':si: or :modo:')
-        self.change_status(':raspberrypi:Working//業務中', ':working-from-home:')
+        self.changeStatus(':raspberrypi:Working//業務中', ':working-from-home:')
 
     def postPunchOut(self, msg):
         self.postToChannel(':raspberrypi:' + msg + ':syu:')
-        self.change_status(':raspberrypi:Zzz.//終業', ':zzz:')
+        self.changeStatus(':raspberrypi:Zzz.//終業', ':zzz:')
 
     def postAway(self, msg):
         self.postToChannel(':raspberrypi:' + msg + ':ri:')
-        self.change_status(':raspberrypi:AFK//離席中', ':away:')
+        self.changeStatus(':raspberrypi:AFK//離席中', ':away:')
 
 
 def ljust(string, length):
