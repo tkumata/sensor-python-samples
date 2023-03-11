@@ -90,15 +90,6 @@ class SlackCtrl:
         )
         urllib.request.urlopen(req)
 
-    def postPunchIn(self, msg):
-        self.postToChannel(':raspberrypi: ' + msg + ' :si: or :modo:')
-
-    def postPunchOut(self, msg):
-        self.postToChannel(':raspberrypi: ' + msg + ' :syu:')
-
-    def postAway(self, msg):
-        self.postToChannel(':raspberrypi: ' + msg + ' :ri:')
-
     def change_status(self, status_text, status_emoji):
         headers = {
             'Authorization': 'Bearer %s' % self.TOKEN,
@@ -118,6 +109,18 @@ class SlackCtrl:
             headers=headers
         )
         urllib.request.urlopen(req)
+
+    def postPunchIn(self, msg):
+        self.postToChannel(':raspberrypi:' + msg + ':si: or :modo:')
+        self.change_status(':raspberrypi:Working//業務中', ':working-from-home:')
+
+    def postPunchOut(self, msg):
+        self.postToChannel(':raspberrypi:' + msg + ':syu:')
+        self.change_status(':raspberrypi:Zzz.//終業', ':zzz:')
+
+    def postAway(self, msg):
+        self.postToChannel(':raspberrypi:' + msg + ':ri:')
+        self.change_status(':raspberrypi:AFK//離席中', ':away:')
 
 
 def ljust(string, length):
@@ -139,36 +142,40 @@ slack = SlackCtrl()
 btn = Button(GPIO_SIG, hold_time=3.0, bounce_time=0.05, pull_up=False)
 
 while True:
-    btn.wait_for_press()
-    pressed_time = datetime.now()
-    PRESSED = 1
-    btn.wait_for_release()
-    released_time = datetime.now()
-    lap_time = released_time - pressed_time
+    try:
+        btn.wait_for_press()
+        pressed_time = datetime.now()
 
-    # Press type
-    if (timedelta(seconds=HOLD_TIME) <= lap_time and
-            lap_time <= timedelta(seconds=HOLD_WAIT)):
+        btn.wait_for_release()
+        released_time = datetime.now()
+
+        lap_time = released_time - pressed_time
+
         # Looooong press
-        now = datetime.now()
-        msg = random.choice(punchOutScripts)
-        slack.postPunchOut(msg)
-        slack.change_status('Zzz...//終業', ':working-from-home:')
-        print(now.strftime('%Y-%m-%d %H:%M:%S') + ' [held] ' + msg)
-        PRESSED = 0
-    if btn.wait_for_press(timeout=TIME_OUT):
-        # Double press
-        now = datetime.now()
-        msg = random.choice(awayScripts)
-        slack.postAway(msg)
-        slack.change_status('AFK//離席中', ':away:')
-        print(now.strftime('%Y-%m-%d %H:%M:%S') + ' [double] ' + msg)
-        time.sleep(TIME_OUT)
-    else:
-        # Single press
-        if lap_time < timedelta(seconds=0.5):
+        if (timedelta(seconds=HOLD_TIME) <= lap_time and
+                lap_time <= timedelta(seconds=HOLD_WAIT)):
+            msg = random.choice(punchOutScripts)
+            slack.postPunchOut(msg)
+
             now = datetime.now()
-            msg = random.choice(punchInScripts)
-            slack.postPunchIn(msg)
-            slack.change_status('Working...//業務中', ':house:')
-            print(now.strftime('%Y-%m-%d %H:%M:%S') + ' [single] ' + msg)
+            print(now.strftime('%Y-%m-%d %H:%M:%S') + ' [held] ' + msg)
+
+        # Double press
+        if btn.wait_for_press(timeout=TIME_OUT):
+            msg = random.choice(awayScripts)
+            slack.postAway(msg)
+
+            now = datetime.now()
+            print(now.strftime('%Y-%m-%d %H:%M:%S') + ' [double] ' + msg)
+            time.sleep(TIME_OUT)
+        else:
+            if lap_time < timedelta(seconds=0.5):
+                # Single press
+                msg = random.choice(punchInScripts)
+                slack.postPunchIn(msg)
+
+                now = datetime.now()
+                print(now.strftime('%Y-%m-%d %H:%M:%S') + ' [single] ' + msg)
+    except KeyboardInterrupt:
+        print('Keyboard interrupt.')
+        exit()
