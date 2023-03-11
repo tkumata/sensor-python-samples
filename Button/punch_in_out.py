@@ -59,7 +59,7 @@ awayScripts = [
     'Step out.',
     'Going on an errand.',
     'Unavailable.',
-    'Ctrl + z',
+    '$ Ctrl + z',
     '$ bg 4510ｯﾀｰﾝ'
 ]
 
@@ -90,16 +90,7 @@ class SlackCtrl:
         )
         urllib.request.urlopen(req)
 
-    def postPunchIn(self, msg):
-        self.postToChannel(':raspberrypi: ' + msg + ' :si: or :modo:')
-
-    def postPunchOut(self, msg):
-        self.postToChannel(':raspberrypi: ' + msg + ' :syu:')
-
-    def postAway(self, msg):
-        self.postToChannel(':raspberrypi: ' + msg + ' :ri:')
-
-    def change_status(self, status_text, status_emoji):
+    def changeStatus(self, status_text, status_emoji):
         headers = {
             'Authorization': 'Bearer %s' % self.TOKEN,
             'X-Slack-User': self.MEMBER_ID,
@@ -118,6 +109,18 @@ class SlackCtrl:
             headers=headers
         )
         urllib.request.urlopen(req)
+
+    def postPunchIn(self, msg):
+        self.postToChannel(':raspberrypi:' + msg + ':si: or :modo:')
+        self.changeStatus(':raspberrypi:Working//業務中', ':working-from-home:')
+
+    def postPunchOut(self, msg):
+        self.postToChannel(':raspberrypi:' + msg + ':syu:')
+        self.changeStatus(':raspberrypi:Zzz.//終業', ':zzz:')
+
+    def postAway(self, msg):
+        self.postToChannel(':raspberrypi:' + msg + ':ri:')
+        self.changeStatus(':raspberrypi:AFK//離席中', ':away:')
 
 
 def ljust(string, length):
@@ -138,37 +141,44 @@ print(ljust('Long press', 18) + '終了')
 slack = SlackCtrl()
 btn = Button(GPIO_SIG, hold_time=3.0, bounce_time=0.05, pull_up=False)
 
-while True:
-    btn.wait_for_press()
-    pressed_time = datetime.now()
-    PRESSED = 1
-    btn.wait_for_release()
-    released_time = datetime.now()
-    lap_time = released_time - pressed_time
+try:
+    while True:
+        # when press button
+        btn.wait_for_press()
+        pressed_time = datetime.now()
 
-    # Press type
-    if (timedelta(seconds=HOLD_TIME) <= lap_time and
-            lap_time <= timedelta(seconds=HOLD_WAIT)):
+        # when release button
+        btn.wait_for_release()
+        released_time = datetime.now()
+
+        # get lap time between pressed and released
+        lap_time = released_time - pressed_time
+
         # Looooong press
-        now = datetime.now()
-        msg = random.choice(punchOutScripts)
-        slack.postPunchOut(msg)
-        slack.change_status('Zzz...//終業', ':working-from-home:')
-        print(now.strftime('%Y-%m-%d %H:%M:%S') + ' [held] ' + msg)
-        PRESSED = 0
-    if btn.wait_for_press(timeout=TIME_OUT):
-        # Double press
-        now = datetime.now()
-        msg = random.choice(awayScripts)
-        slack.postAway(msg)
-        slack.change_status('AFK//離席中', ':away:')
-        print(now.strftime('%Y-%m-%d %H:%M:%S') + ' [double] ' + msg)
-        time.sleep(TIME_OUT)
-    else:
-        # Single press
-        if lap_time < timedelta(seconds=0.5):
+        if (timedelta(seconds=HOLD_TIME) <= lap_time and
+                lap_time <= timedelta(seconds=HOLD_WAIT)):
+            msg = random.choice(punchOutScripts)
+            slack.postPunchOut(msg)
+
             now = datetime.now()
-            msg = random.choice(punchInScripts)
-            slack.postPunchIn(msg)
-            slack.change_status('Working...//業務中', ':house:')
-            print(now.strftime('%Y-%m-%d %H:%M:%S') + ' [single] ' + msg)
+            print(now.strftime('%Y-%m-%d %H:%M:%S') + ' [held] ' + msg)
+
+        # Double press
+        if btn.wait_for_press(timeout=TIME_OUT):
+            msg = random.choice(awayScripts)
+            slack.postAway(msg)
+
+            now = datetime.now()
+            print(now.strftime('%Y-%m-%d %H:%M:%S') + ' [double] ' + msg)
+            time.sleep(TIME_OUT)
+        else:
+            if lap_time < timedelta(seconds=0.5):
+                # Single press
+                msg = random.choice(punchInScripts)
+                slack.postPunchIn(msg)
+
+                now = datetime.now()
+                print(now.strftime('%Y-%m-%d %H:%M:%S') + ' [single] ' + msg)
+except KeyboardInterrupt:
+    print('Keyboard interrupt.')
+    exit()
