@@ -91,13 +91,13 @@ class SlackCtrl:
         urllib.request.urlopen(req)
 
     def postPunchIn(self, msg):
-        self.postToChannel('試:raspberrypi: ' + msg)
+        self.postToChannel(':raspberrypi: ' + msg + ' :si: or :modo:')
 
     def postPunchOut(self, msg):
-        self.postToChannel('試:raspberrypi: ' + msg)
+        self.postToChannel(':raspberrypi: ' + msg + ' :syu:')
 
     def postAway(self, msg):
-        self.postToChannel('試:raspberrypi: ' + msg)
+        self.postToChannel(':raspberrypi: ' + msg + ' :ri:')
 
     def change_status(self, status_text, status_emoji):
         headers = {
