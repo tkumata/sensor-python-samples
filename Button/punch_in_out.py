@@ -59,7 +59,7 @@ awayScripts = [
     'Step out.',
     'Going on an errand.',
     'Unavailable.',
-    'Ctrl + z',
+    '$ Ctrl + z',
     '$ bg 4510ｯﾀｰﾝ'
 ]
 
@@ -141,14 +141,17 @@ print(ljust('Long press', 18) + '終了')
 slack = SlackCtrl()
 btn = Button(GPIO_SIG, hold_time=3.0, bounce_time=0.05, pull_up=False)
 
-while True:
-    try:
+try:
+    while True:
+        # when press button
         btn.wait_for_press()
         pressed_time = datetime.now()
 
+        # when release button
         btn.wait_for_release()
         released_time = datetime.now()
 
+        # get lap time between pressed and released
         lap_time = released_time - pressed_time
 
         # Looooong press
@@ -176,6 +179,6 @@ while True:
 
                 now = datetime.now()
                 print(now.strftime('%Y-%m-%d %H:%M:%S') + ' [single] ' + msg)
-    except KeyboardInterrupt:
-        print('Keyboard interrupt.')
-        exit()
+except KeyboardInterrupt:
+    print('Keyboard interrupt.')
+    exit()
