@@ -42,7 +42,6 @@ draw = ImageDraw.Draw(baseImage)
 
 # First define some constants to allow easy positioning of text.
 padding = -2
-x = 0
 
 # Load a TTF font.
 smallFont = ImageFont.truetype(
@@ -90,12 +89,20 @@ class LinuxCommands:
         timePresent = CLOCK_ICON + timePresent
         return timePresent
 
+    def getCpuTemp(self):
+        cmd = "cat /sys/class/thermal/thermal_zone0/temp"\
+            + " | awk '{printf \"%.1f C\", $(NF-0) / 1000}'"
+        cpuTemp = subprocess.check_output(cmd, shell=True).decode("utf-8")
+        cpuTemp = TEMP_ICON + cpuTemp
+        return cpuTemp
+
 
 linuxCommands = LinuxCommands()
 
 try:
     while True:
         y = padding
+        x = 0
 
         draw.rectangle((0, 0, width, height), outline=0, fill=0)
 
@@ -113,10 +120,16 @@ try:
 
         # Draw date.
         dateToday = linuxCommands.getToday()
-        # x = (width / 2) - (defaultFont.getsize(dateToday)[0] / 2)
+        x = (width / 2) - (defaultFont.getsize(dateToday)[0] / 2)
         y += 2
         draw.text((x, y), dateToday, font=defaultFont, fill="white")
         y += defaultFont.getsize(dateToday)[1]
+
+        # Draw CPU
+        cpuTemp = linuxCommands.getCpuTemp()
+        x = 0
+        y += 7
+        draw.text((x, y), cpuTemp, font=smallFont, fill="white")
 
         # Display baseImage.
         disp.image(baseImage)
