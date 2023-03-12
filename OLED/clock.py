@@ -99,10 +99,10 @@ try:
         dateToday = subprocess.check_output(cmd, shell=True).decode("utf-8")
         dateToday = CALENDER_ICON + dateToday
         # Draw date.
-        x = (width / 2) - (smallFont.getsize(dateToday)[0] / 2)
+        x = (width / 2) - (defaultFont.getsize(dateToday)[0] / 2)
         y += 5
-        draw.text((x, y), dateToday, font=smallFont, fill="white")
-        y += smallFont.getsize(dateToday)[1]
+        draw.text((x, y), dateToday, font=defaultFont, fill="white")
+        y += defaultFont.getsize(dateToday)[1]
 
         x = 0
 
