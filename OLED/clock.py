@@ -69,42 +69,54 @@ CPU_ICON = u'\ue266 '
 RASPI_ICON = u'\ue722 '
 CALENDER_ICON = u'\uf073 '
 
+
+class LinuxCommands:
+    def getPiModel(self):
+        cmd = "grep </proc/cpuinfo '^Model' | cut -d':' -f2 | cut -d' ' -f2-"\
+            + "| awk '{print $1,$2,$3,$4}'"
+        raspiModel = subprocess.check_output(cmd, shell=True).decode("utf-8")
+        raspiModel = RASPI_ICON + raspiModel
+        return raspiModel
+
+    def getToday(self):
+        cmd = "date '+%Y/%m/%d' | tr -d '[:space:]'"
+        dateToday = subprocess.check_output(cmd, shell=True).decode("utf-8")
+        dateToday = CALENDER_ICON + dateToday
+        return dateToday
+
+    def getTime(self):
+        cmd = "date '+%H:%M:%S' | tr -d '[:space:]'"
+        timePresent = subprocess.check_output(cmd, shell=True).decode("utf-8")
+        timePresent = CLOCK_ICON + timePresent
+        return timePresent
+
+
+linuxCommands = LinuxCommands()
+
 try:
     while True:
         y = padding
 
         draw.rectangle((0, 0, width, height), outline=0, fill=0)
 
-        # Get a Pi model data.
-        cmd = "grep </proc/cpuinfo '^Model' | cut -d':' -f2 | cut -d' ' -f2-"\
-            + "| awk '{print $1,$2,$3,$4}'"
-        raspiModel = subprocess.check_output(cmd, shell=True).decode("utf-8")
-        raspiModel = RASPI_ICON + raspiModel
         # Draw Raspi model.
-        draw.text((x, y), raspiModel, font=smallFont, fill="white")
-        y += smallFont.getsize(raspiModel)[1]
+        piModel = linuxCommands.getPiModel()
+        draw.text((x, y), piModel, font=smallFont, fill="white")
+        y += smallFont.getsize(piModel)[1]
 
-        # Get time
-        cmd = "date '+%H:%M:%S' | tr -d '[:space:]'"
-        timePresent = subprocess.check_output(cmd, shell=True).decode("utf-8")
-        timePresent = CLOCK_ICON + timePresent
         # Draw time.
-        x = (width / 2) - (largeFont.getsize(timePresent)[0] / 2)
-        y += 5
+        timePresent = linuxCommands.getTime()
+        # x = (width / 2) - (largeFont.getsize(timePresent)[0] / 2)
+        y += 3
         draw.text((x, y), timePresent, font=largeFont, fill="white")
         y += largeFont.getsize(timePresent)[1]
 
-        # Get date.
-        cmd = "date '+%Y/%m/%d' | tr -d '[:space:]'"
-        dateToday = subprocess.check_output(cmd, shell=True).decode("utf-8")
-        dateToday = CALENDER_ICON + dateToday
         # Draw date.
-        x = (width / 2) - (defaultFont.getsize(dateToday)[0] / 2)
-        y += 5
+        dateToday = linuxCommands.getToday()
+        # x = (width / 2) - (defaultFont.getsize(dateToday)[0] / 2)
+        y += 2
         draw.text((x, y), dateToday, font=defaultFont, fill="white")
         y += defaultFont.getsize(dateToday)[1]
-
-        x = 0
 
         # Display baseImage.
         disp.image(baseImage)
