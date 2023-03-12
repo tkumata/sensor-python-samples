@@ -1,6 +1,6 @@
 import os
 import subprocess
-import time
+# import time
 
 import board
 import digitalio
@@ -65,7 +65,7 @@ DESK_ICON = u'\ufb5a '
 CLOCK_ICON = u'\ue38b '
 TEMP_ICON = u'\uf2c9 '
 CPU_ICON = u'\ue266 '
-RASPI_ICON = u'\ue722 '
+RASPI_ICON = u'\uf315 '
 CALENDER_ICON = u'\uf073 '
 
 
@@ -89,12 +89,17 @@ class LinuxCommands:
         timePresent = CLOCK_ICON + timePresent
         return timePresent
 
-    def getCpuTemp(self):
+    def getCpuInfo(self):
         cmd = "cat /sys/class/thermal/thermal_zone0/temp"\
-            + " | awk '{printf \"%.1f C\", $(NF-0) / 1000}'"
-        cpuTemp = subprocess.check_output(cmd, shell=True).decode("utf-8")
-        cpuTemp = TEMP_ICON + cpuTemp
-        return cpuTemp
+            + " | awk '{printf \"%.1fC\", $(NF-0) / 1000}'"
+        cpuInfo = subprocess.check_output(cmd, shell=True).decode("utf-8")
+        cpuInfo = CPU_ICON + cpuInfo
+
+        cmd = "top -bn1 | grep load | awk '{printf \"%.2f\", $(NF-2)}'"
+        cpuLoad = subprocess.check_output(cmd, shell=True).decode("utf-8")
+        cpuInfo = cpuInfo + ' / ' + cpuLoad
+
+        return cpuInfo
 
 
 linuxCommands = LinuxCommands()
@@ -109,31 +114,27 @@ try:
         # Draw Raspi model.
         piModel = linuxCommands.getPiModel()
         draw.text((x, y), piModel, font=smallFont, fill="white")
-        y += smallFont.getsize(piModel)[1]
+        y += smallFont.getsize(piModel)[1] + 10
 
         # Draw time.
         timePresent = linuxCommands.getTime()
-        # x = (width / 2) - (largeFont.getsize(timePresent)[0] / 2)
-        y += 3
         draw.text((x, y), timePresent, font=largeFont, fill="white")
-        y += largeFont.getsize(timePresent)[1]
+        y += largeFont.getsize(timePresent)[1] + 2
 
         # Draw date.
         dateToday = linuxCommands.getToday()
         x = (width / 2) - (defaultFont.getsize(dateToday)[0] / 2)
-        y += 2
         draw.text((x, y), dateToday, font=defaultFont, fill="white")
-        y += defaultFont.getsize(dateToday)[1]
+        y += defaultFont.getsize(dateToday)[1] + 5
 
         # Draw CPU
-        cpuTemp = linuxCommands.getCpuTemp()
+        cpuInfo = linuxCommands.getCpuInfo()
         x = 0
-        y += 7
-        draw.text((x, y), cpuTemp, font=smallFont, fill="white")
+        draw.text((x, y), cpuInfo, font=defaultFont, fill="white")
 
         # Display baseImage.
         disp.image(baseImage)
-        time.sleep(0.1)
+        # time.sleep(0.1)
 
 except KeyboardInterrupt:
     draw.rectangle((0, 0, width, height), outline=0, fill=0)
