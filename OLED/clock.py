@@ -106,7 +106,7 @@ try:
 
         x = 0
 
-        # Display imageBase.
+        # Display baseImage.
         disp.image(baseImage)
         time.sleep(0.1)
 
