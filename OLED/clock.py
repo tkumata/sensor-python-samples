@@ -1,18 +1,18 @@
 import os
+import time
 import subprocess
-# import time
 
 import board
 import digitalio
 from adafruit_rgb_display import ssd1351
 from PIL import Image, ImageDraw, ImageFont
 
-print('Setup PIN...')
+print('Initializing PINs with digitalio library...')
 cs_pin = digitalio.DigitalInOut(board.CE0)
 dc_pin = digitalio.DigitalInOut(board.D25)
 reset_pin = digitalio.DigitalInOut(board.D24)
 
-print('new SPI...')
+print('Calling SPI...')
 spi = board.SPI()
 
 print('Creating a display...')
@@ -85,20 +85,20 @@ class LinuxCommands:
 
     def getTime(self):
         cmd = "date '+%H:%M:%S' | tr -d '[:space:]'"
-        timePresent = subprocess.check_output(cmd, shell=True).decode("utf-8")
-        timePresent = CLOCK_ICON + timePresent
-        return timePresent
+        now = subprocess.check_output(cmd, shell=True).decode("utf-8")
+        now = CLOCK_ICON + now
+        return now
 
     def getCpuInfo(self):
+        # temparature
         cmd = "cat /sys/class/thermal/thermal_zone0/temp"\
             + " | awk '{printf \"%.1fC\", $(NF-0) / 1000}'"
         cpuInfo = subprocess.check_output(cmd, shell=True).decode("utf-8")
         cpuInfo = CPU_ICON + cpuInfo
-
+        # load average
         cmd = "top -bn1 | grep load | awk '{printf \"%.2f\", $(NF-2)}'"
         cpuLoad = subprocess.check_output(cmd, shell=True).decode("utf-8")
         cpuInfo = cpuInfo + ' / ' + cpuLoad
-
         return cpuInfo
 
 
@@ -106,35 +106,35 @@ linuxCommands = LinuxCommands()
 
 try:
     while True:
-        y = padding
-        x = 0
-
         draw.rectangle((0, 0, width, height), outline=0, fill=0)
 
         # Draw Raspi model.
         piModel = linuxCommands.getPiModel()
+        x = 0
+        y = padding
         draw.text((x, y), piModel, font=smallFont, fill="white")
-        y += smallFont.getsize(piModel)[1] + 10
 
         # Draw time.
-        timePresent = linuxCommands.getTime()
-        draw.text((x, y), timePresent, font=largeFont, fill="white")
-        y += largeFont.getsize(timePresent)[1] + 2
+        timeNow = linuxCommands.getTime()
+        x = 0
+        y += smallFont.getsize(piModel)[1] + 10
+        draw.text((x, y), timeNow, font=largeFont, fill="white")
 
         # Draw date.
         dateToday = linuxCommands.getToday()
         x = (width / 2) - (defaultFont.getsize(dateToday)[0] / 2)
+        y += largeFont.getsize(timeNow)[1] + 2
         draw.text((x, y), dateToday, font=defaultFont, fill="white")
-        y += defaultFont.getsize(dateToday)[1] + 5
 
-        # Draw CPU
+        # Draw CPU info
         cpuInfo = linuxCommands.getCpuInfo()
         x = 0
+        y += defaultFont.getsize(dateToday)[1] + 5
         draw.text((x, y), cpuInfo, font=defaultFont, fill="white")
 
-        # Display baseImage.
+        # Display to baseImage.
         disp.image(baseImage)
-        # time.sleep(0.1)
+        time.sleep(0.1)
 
 except KeyboardInterrupt:
     draw.rectangle((0, 0, width, height), outline=0, fill=0)
