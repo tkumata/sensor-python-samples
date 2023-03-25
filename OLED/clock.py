@@ -7,6 +7,8 @@ import digitalio
 from adafruit_rgb_display import ssd1351
 from PIL import Image, ImageDraw, ImageFont
 
+import little_strings as STR
+
 print('Initializing PINs with digitalio library...')
 cs_pin = digitalio.DigitalInOut(board.CE0)
 dc_pin = digitalio.DigitalInOut(board.D25)
@@ -14,6 +16,9 @@ reset_pin = digitalio.DigitalInOut(board.D24)
 
 print('Calling SPI...')
 spi = board.SPI()
+
+print('Calling text wrapper class...')
+tw = STR.TextWrapper()
 
 print('Creating a display...')
 BAUDRATE = 24000000
@@ -33,6 +38,8 @@ if disp.rotation % 180 == 90:
 else:
     width = disp.width
     height = disp.height
+
+MAXWIDTH = width
 
 print('Creating a black image...')
 baseImage = Image.new("RGB", (width, height))
@@ -57,7 +64,12 @@ defaultFont = ImageFont.truetype(
 largeFont = ImageFont.truetype(
     os.path.dirname(__file__) +
     "/materials/SFMono-Regular-Nerd-Font-Complete.otf",
-    20
+    28
+)
+hugeFont = ImageFont.truetype(
+    os.path.dirname(__file__) +
+    "/materials/SFMono-Regular-Nerd-Font-Complete.otf",
+    34
 )
 
 DIST_ICON = u'\ufaca '
@@ -65,16 +77,16 @@ DESK_ICON = u'\ufb5a '
 CLOCK_ICON = u'\ue38b '
 TEMP_ICON = u'\uf2c9 '
 CPU_ICON = u'\ue266 '
-RASPI_ICON = u'\uf315 '
+RASPI_ICON = u'\uf315'
 CALENDER_ICON = u'\uf073 '
 
 
 class LinuxCommands:
     def getPiModel(self):
         cmd = "grep </proc/cpuinfo '^Model' | cut -d':' -f2 | cut -d' ' -f2-"\
-            + "| awk '{print $1,$2,$3,$4}'"
+            + "| awk '{print $1, $2, $3, $4}'"
         raspiModel = subprocess.check_output(cmd, shell=True).decode("utf-8")
-        raspiModel = RASPI_ICON + raspiModel
+        raspiModel = raspiModel
         return raspiModel
 
     def getToday(self):
@@ -84,7 +96,7 @@ class LinuxCommands:
         return dateToday
 
     def getTime(self):
-        cmd = "date '+%H:%M:%S' | tr -d '[:space:]'"
+        cmd = "date '+%H:%M' | tr -d '[:space:]'"
         now = subprocess.check_output(cmd, shell=True).decode("utf-8")
         now = CLOCK_ICON + now
         return now
@@ -98,8 +110,30 @@ class LinuxCommands:
         # load average
         cmd = "top -bn1 | grep load | awk '{printf \"%.2f\", $(NF-2)}'"
         cpuLoad = subprocess.check_output(cmd, shell=True).decode("utf-8")
-        cpuInfo = cpuInfo + ' / ' + cpuLoad
+        cpuInfo = cpuInfo + '/' + cpuLoad
         return cpuInfo
+
+
+def fw_wrap(text, width=MAXWIDTH, **kwargs):
+    w = STR.TextWrapper(width=width, **kwargs)
+    return w.wrap(text)
+
+
+def displayText(x, y, Text, font, cr=18):
+    lines = fw_wrap(Text, cr)
+    line_counter = 0
+
+    for line in lines:
+        y = y + line_counter * font.getsize(Text)[1]
+        line_color = (255, 255, 255)
+
+        # if line_counter % 2 != 0:
+        #     line_color = (220, 220, 220)
+
+        draw.multiline_text((x, y), line, fill=line_color, font=font)
+        line_counter = line_counter + 1
+
+    return line_counter
 
 
 linuxCommands = LinuxCommands()
@@ -108,33 +142,41 @@ try:
     while True:
         draw.rectangle((0, 0, width, height), outline=0, fill=0)
 
-        # Draw Raspi model.
-        piModel = linuxCommands.getPiModel()
+        # Draw Pi logo at top right on display
+        x = width - hugeFont.getsize(RASPI_ICON)[0]
+        draw.text((x, 0), RASPI_ICON, font=hugeFont, fill="pink")
+        logoEndY = hugeFont.getsize(RASPI_ICON)[1]
+
         x = 0
         y = padding
-        draw.text((x, y), piModel, font=smallFont, fill="white")
+
+        # Draw Raspi model.
+        piModel = linuxCommands.getPiModel()
+        lineCounter = displayText(x, y, piModel, smallFont, 14)
+        piModelY = smallFont.getsize(piModel)[1] * lineCounter
+
+        if piModelY > logoEndY:
+            y = piModelY
+        else:
+            y = logoEndY
 
         # Draw time.
         timeNow = linuxCommands.getTime()
-        x = 0
-        y += smallFont.getsize(piModel)[1] + 10
-        draw.text((x, y), timeNow, font=largeFont, fill="white")
+        lineCounter = displayText(x, y, timeNow, largeFont)
+        y += largeFont.getsize(timeNow)[1] * lineCounter
 
         # Draw date.
         dateToday = linuxCommands.getToday()
-        x = (width / 2) - (defaultFont.getsize(dateToday)[0] / 2)
-        y += largeFont.getsize(timeNow)[1] + 2
-        draw.text((x, y), dateToday, font=defaultFont, fill="white")
+        lineCounter = displayText(x, y, dateToday, defaultFont)
+        y += defaultFont.getsize(dateToday)[1] * lineCounter
 
         # Draw CPU info
         cpuInfo = linuxCommands.getCpuInfo()
-        x = 0
-        y += defaultFont.getsize(dateToday)[1] + 5
-        draw.text((x, y), cpuInfo, font=defaultFont, fill="white")
+        displayText(x, y, cpuInfo, defaultFont)
 
         # Display to baseImage.
         disp.image(baseImage)
-        time.sleep(0.1)
+        time.sleep(5)
 
 except KeyboardInterrupt:
     draw.rectangle((0, 0, width, height), outline=0, fill=0)
