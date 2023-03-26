@@ -55,32 +55,32 @@ x = 0
 # Load a TTF font.
 smallFont = ImageFont.truetype(
     os.path.dirname(__file__) +
-    "/materials/SFMono-Regular-Nerd-Font-Complete.otf",
+    "/materials/Hack-Regular-Nerd-Font-Complete.ttf",
     14
 )
 defaultFont = ImageFont.truetype(
     os.path.dirname(__file__) +
-    "/materials/SFMono-Regular-Nerd-Font-Complete.otf",
+    "/materials/Hack-Regular-Nerd-Font-Complete.ttf",
     16
 )
 largeFont = ImageFont.truetype(
     os.path.dirname(__file__) +
-    "/materials/SFMono-Regular-Nerd-Font-Complete.otf",
+    "/materials/Hack-Regular-Nerd-Font-Complete.ttf",
     21
 )
 hugeFont = ImageFont.truetype(
     os.path.dirname(__file__) +
-    "/materials/SFMono-Regular-Nerd-Font-Complete.otf",
+    "/materials/Hack-Regular-Nerd-Font-Complete.ttf",
     32
 )
 
-DIST_ICON = u'\ufaca '
-DESK_ICON = u'\ufb5a '
-CLOCK_ICON = u'\ue38b '
-TEMP_ICON = u'\uf2c9 '
-CPU_ICON = u'\ue266 '
+DIST_ICON = u'\ufaca'
+DESK_ICON = u'\ufb5a'
+CLOCK_ICON = u'\ue38b'
+TEMP_ICON = u'\uf2c9'
+CPU_ICON = u'\ue266'
 RASPI_ICON = u'\uf315'
-CALENDER_ICON = u'\uf073 '
+CALENDER_ICON = u'\uf073'
 
 
 class LinuxCommands:
@@ -92,15 +92,17 @@ class LinuxCommands:
         return raspiModel
 
     def getDateTime(self):
-        nowobj = datetime.datetime.now()
-        return CALENDER_ICON + nowobj.strftime('%Y/%m/%d'), CLOCK_ICON + nowobj.strftime('%H:%M:%S')
+        now = datetime.datetime.now()
+        # now = now + datetime.timedelta(seconds=0.3)
+        return CALENDER_ICON + ' ' + now.strftime('%Y/%m/%d'),\
+            CLOCK_ICON + ' ' + now.strftime('%H:%M:%S')
 
     def getCpuInfo(self):
         # temparature
         cmd = "cat /sys/class/thermal/thermal_zone0/temp"\
             + " | awk '{printf \"%.1fC\", $(NF-0) / 1000}'"
         cpuInfo = subprocess.check_output(cmd, shell=True).decode("utf-8")
-        cpuInfo = CPU_ICON + cpuInfo
+        cpuInfo = CPU_ICON + ' ' + cpuInfo
         # load average
         cmd = "cat /proc/loadavg | cut -d' ' -f1"
         cpuLoad = subprocess.check_output(cmd, shell=True).decode("utf-8")
@@ -160,11 +162,11 @@ try:
             y = logoEndY
 
         # Draw time.
-        lineCounter = displayText(x, y+1, timeNow, largeFont)
+        lineCounter = displayText(x, y + 1, timeNow, largeFont)
         y += largeFont.getsize(timeNow)[1] * lineCounter
 
         # Draw date.
-        lineCounter = displayText(x, y+1, dateToday, defaultFont)
+        lineCounter = displayText(x, y + 1, dateToday, defaultFont)
         y += defaultFont.getsize(dateToday)[1] * lineCounter
 
         # Draw CPU info
