@@ -1,5 +1,6 @@
 import os
 import time
+import datetime
 import subprocess
 
 import board
@@ -43,33 +44,34 @@ MAXWIDTH = width
 
 print('Creating a black image...')
 baseImage = Image.new("RGB", (width, height))
-drawedBaseImage = ImageDraw.Draw(baseImage)
-drawedBaseImage.rectangle((0, 0, width, height), outline=0, fill=0)
 draw = ImageDraw.Draw(baseImage)
+draw.rectangle((0, 0, width, height), outline=0, fill=0)
+disp.image(baseImage)
 
 # First define some constants to allow easy positioning of text.
 padding = -2
+x = 0
 
 # Load a TTF font.
 smallFont = ImageFont.truetype(
     os.path.dirname(__file__) +
     "/materials/SFMono-Regular-Nerd-Font-Complete.otf",
-    12
+    14
 )
 defaultFont = ImageFont.truetype(
     os.path.dirname(__file__) +
     "/materials/SFMono-Regular-Nerd-Font-Complete.otf",
-    14
+    16
 )
 largeFont = ImageFont.truetype(
     os.path.dirname(__file__) +
     "/materials/SFMono-Regular-Nerd-Font-Complete.otf",
-    28
+    21
 )
 hugeFont = ImageFont.truetype(
     os.path.dirname(__file__) +
     "/materials/SFMono-Regular-Nerd-Font-Complete.otf",
-    34
+    32
 )
 
 DIST_ICON = u'\ufaca '
@@ -89,17 +91,9 @@ class LinuxCommands:
         raspiModel = raspiModel
         return raspiModel
 
-    def getToday(self):
-        cmd = "date '+%Y/%m/%d' | tr -d '[:space:]'"
-        dateToday = subprocess.check_output(cmd, shell=True).decode("utf-8")
-        dateToday = CALENDER_ICON + dateToday
-        return dateToday
-
-    def getTime(self):
-        cmd = "date '+%H:%M' | tr -d '[:space:]'"
-        now = subprocess.check_output(cmd, shell=True).decode("utf-8")
-        now = CLOCK_ICON + now
-        return now
+    def getDateTime(self):
+        nowobj = datetime.datetime.now()
+        return CALENDER_ICON + nowobj.strftime('%Y/%m/%d'), CLOCK_ICON + nowobj.strftime('%H:%M:%S')
 
     def getCpuInfo(self):
         # temparature
@@ -108,7 +102,7 @@ class LinuxCommands:
         cpuInfo = subprocess.check_output(cmd, shell=True).decode("utf-8")
         cpuInfo = CPU_ICON + cpuInfo
         # load average
-        cmd = "top -bn1 | grep load | awk '{printf \"%.2f\", $(NF-2)}'"
+        cmd = "cat /proc/loadavg | cut -d' ' -f1"
         cpuLoad = subprocess.check_output(cmd, shell=True).decode("utf-8")
         cpuInfo = cpuInfo + '/' + cpuLoad
         return cpuInfo
@@ -140,9 +134,15 @@ linuxCommands = LinuxCommands()
 
 try:
     while True:
+        # get info
+        piModel = linuxCommands.getPiModel()
+        cpuInfo = linuxCommands.getCpuInfo()
+        dateToday, timeNow = linuxCommands.getDateTime()
+
+        # fill screen with black
         draw.rectangle((0, 0, width, height), outline=0, fill=0)
 
-        # Draw Pi logo at top right on display
+        # Draw Pi logo at top right on dthe isplay
         x = width - hugeFont.getsize(RASPI_ICON)[0]
         draw.text((x, 0), RASPI_ICON, font=hugeFont, fill="pink")
         logoEndY = hugeFont.getsize(RASPI_ICON)[1]
@@ -151,8 +151,7 @@ try:
         y = padding
 
         # Draw Raspi model.
-        piModel = linuxCommands.getPiModel()
-        lineCounter = displayText(x, y, piModel, smallFont, 14)
+        lineCounter = displayText(x, y, piModel, smallFont, 10)
         piModelY = smallFont.getsize(piModel)[1] * lineCounter
 
         if piModelY > logoEndY:
@@ -161,22 +160,19 @@ try:
             y = logoEndY
 
         # Draw time.
-        timeNow = linuxCommands.getTime()
-        lineCounter = displayText(x, y, timeNow, largeFont)
+        lineCounter = displayText(x, y+1, timeNow, largeFont)
         y += largeFont.getsize(timeNow)[1] * lineCounter
 
         # Draw date.
-        dateToday = linuxCommands.getToday()
-        lineCounter = displayText(x, y, dateToday, defaultFont)
+        lineCounter = displayText(x, y+1, dateToday, defaultFont)
         y += defaultFont.getsize(dateToday)[1] * lineCounter
 
         # Draw CPU info
-        cpuInfo = linuxCommands.getCpuInfo()
-        displayText(x, y, cpuInfo, defaultFont)
+        lineCounter = displayText(x, y, cpuInfo, defaultFont)
 
-        # Display to baseImage.
+        # Display baseImage.
         disp.image(baseImage)
-        time.sleep(5)
+        time.sleep(0.7)
 
 except KeyboardInterrupt:
     draw.rectangle((0, 0, width, height), outline=0, fill=0)
