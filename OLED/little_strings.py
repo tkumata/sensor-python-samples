@@ -52,18 +52,19 @@ class TextWrapper(textwrap.TextWrapper):
                 del chunks[-1]
 
             while chunks:
-                l = column_width(chunks[-1])
+                length = column_width(chunks[-1])
 
-                if cur_len + l <= width:
+                if cur_len + length <= width:
                     cur_line.append(chunks.pop())
-                    cur_len += l
+                    cur_len += length
                 else:
                     break
 
             if chunks and column_width(chunks[-1]) > width:
                 self._handle_long_word(chunks, cur_line, cur_len, width)
 
-            if self.drop_whitespace and cur_line and cur_line[-1].strip() == '':
+            if self.drop_whitespace and cur_line\
+                    and cur_line[-1].strip() == '':
                 del cur_line[-1]
 
             if cur_line:

@@ -1,7 +1,7 @@
 import os
 import time
-import datetime
 import subprocess
+import datetime
 
 import board
 import digitalio
@@ -92,8 +92,7 @@ class LinuxCommands:
         return raspiModel
 
     def getDateTime(self):
-        now = datetime.datetime.now()
-        # now = now + datetime.timedelta(seconds=0.3)
+        now = datetime.datetime.now() - datetime.timedelta(milliseconds=3)
         return CALENDER_ICON + ' ' + now.strftime('%Y/%m/%d'),\
             CLOCK_ICON + ' ' + now.strftime('%H:%M:%S')
 
@@ -120,7 +119,7 @@ def displayText(x, y, Text, font, cr=18):
     line_counter = 0
 
     for line in lines:
-        y = y + line_counter * font.getsize(Text)[1]
+        y = y + line_counter * font.getmask(Text).getbbox()[2]
         line_color = (255, 255, 255)
 
         # if line_counter % 2 != 0:
@@ -136,6 +135,8 @@ linuxCommands = LinuxCommands()
 
 try:
     while True:
+        # start_time = datetime.datetime.now()
+
         # get info
         piModel = linuxCommands.getPiModel()
         cpuInfo = linuxCommands.getCpuInfo()
@@ -145,16 +146,16 @@ try:
         draw.rectangle((0, 0, width, height), outline=0, fill=0)
 
         # Draw Pi logo at top right on dthe isplay
-        x = width - hugeFont.getsize(RASPI_ICON)[0]
+        x = width - hugeFont.getmask(RASPI_ICON).getbbox()[2]  # x
         draw.text((x, 0), RASPI_ICON, font=hugeFont, fill="pink")
-        logoEndY = hugeFont.getsize(RASPI_ICON)[1]
+        logoEndY = hugeFont.getmask(RASPI_ICON).getbbox()[3]  # y
 
         x = 0
         y = padding
 
         # Draw Raspi model.
         lineCounter = displayText(x, y, piModel, smallFont, 10)
-        piModelY = smallFont.getsize(piModel)[1] * lineCounter
+        piModelY = smallFont.getmask(piModel).getbbox()[3] * lineCounter
 
         if piModelY > logoEndY:
             y = piModelY
@@ -163,18 +164,22 @@ try:
 
         # Draw time.
         lineCounter = displayText(x, y + 1, timeNow, largeFont)
-        y += largeFont.getsize(timeNow)[1] * lineCounter
+        y += largeFont.getmask(timeNow).getbbox()[3] * lineCounter + 2
 
         # Draw date.
         lineCounter = displayText(x, y + 1, dateToday, defaultFont)
-        y += defaultFont.getsize(dateToday)[1] * lineCounter
+        y += defaultFont.getmask(dateToday).getbbox()[3] * lineCounter + 2
 
         # Draw CPU info
         lineCounter = displayText(x, y, cpuInfo, defaultFont)
 
         # Display baseImage.
         disp.image(baseImage)
-        time.sleep(0.7)
+
+        # diff = datetime.datetime.now() - start_time
+        # print(diff.microseconds)
+
+        time.sleep(1.0)
 
 except KeyboardInterrupt:
     draw.rectangle((0, 0, width, height), outline=0, fill=0)
