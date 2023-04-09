@@ -58,3 +58,9 @@ Result
             .::::::::::
              `.-::::-`
 ```
+
+# Notes
+```
+sudo pip3 install pip-review
+sudo pip-review --auto
+```

@@ -12,7 +12,7 @@ from gpiozero import Button
 GPIO_SIG = 15
 
 # Timeout
-TIME_OUT = 0.6
+TIME_OUT = 0.5
 
 # Time while holding press and max holding time
 HOLD_TIME = 3.0
@@ -45,7 +45,7 @@ punchInScripts = [
 # Define punch out transcripts.
 punchOutScripts = [
     '3 2 1, Time out.',
-    'Out of service.',
+    'Out of service, today.',
     'Clock out.',
     'Punch out.',
     'CoB today.',
@@ -116,11 +116,11 @@ class SlackCtrl:
 
     def postPunchOut(self, msg):
         self.postToChannel(':raspberrypi:' + msg + ':syu:')
-        self.changeStatus(':raspberrypi:Zzz.//終業', ':zzz:')
+        self.changeStatus(':raspberrypi:Zzz.//終業', ':syu:')
 
     def postAway(self, msg):
         self.postToChannel(':raspberrypi:' + msg + ':ri:')
-        self.changeStatus(':raspberrypi:AFK//離席中', ':away:')
+        self.changeStatus(':raspberrypi:AFK//離席中', ':ri:')
 
 
 def ljust(string, length):
@@ -139,7 +139,8 @@ print(ljust('Double press', 18) + '離席')
 print(ljust('Long press', 18) + '終了')
 
 slack = SlackCtrl()
-btn = Button(GPIO_SIG, hold_time=3.0, bounce_time=0.05, pull_up=False)
+# btn = Button(GPIO_SIG, hold_time=3.0, bounce_time=0.05, pull_up=False)
+btn = Button(GPIO_SIG, hold_time=3.0, pull_up=False)
 
 try:
     while True:
@@ -179,6 +180,7 @@ try:
 
                 now = datetime.now()
                 print(now.strftime('%Y-%m-%d %H:%M:%S') + ' [single] ' + msg)
+
 except KeyboardInterrupt:
     print('Keyboard interrupt.')
     exit()
